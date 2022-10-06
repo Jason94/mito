@@ -23,7 +23,7 @@
 (in-package :cl-user)
 (defpackage mito.class.validations
   (:use #:cl)
-  (:export))
+  (:export #:foobar))
 (in-package :mito.class.validations)
 
 (defclass validated-class (standard-class)
@@ -34,3 +34,6 @@
 
 (defmethod c2mop:validate-superclass ((class validated-class) (super standard-class))
   t)
+
+(defun foobar ()
+  10)
