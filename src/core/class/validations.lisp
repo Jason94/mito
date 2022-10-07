@@ -38,9 +38,16 @@
   t)
 
 (defun symbol-to-validate-func (symbol class)
-  "Get the function for a symbol with 'validate-' prepended."
-  (symbol-function (find-symbol (concatenate 'string "VALIDATE-" (string symbol))
-                                (symbol-package (class-name class)))))
+  "Get the function for a symbol with 'validate-' prepended. Checks the
+   class's package first, then checks the mito.validations package."
+  (let ((function-name (concatenate 'string "VALIDATE-" (string symbol))))
+    (symbol-function (or
+                       (find-symbol
+                         function-name
+                         (symbol-package (class-name class)))
+                       (find-symbol
+                         function-name
+                         (find-package 'mito.validations))))))
 
 (defun validp (validated-obj)
   "If valid returns:

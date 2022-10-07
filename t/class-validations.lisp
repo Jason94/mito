@@ -21,22 +21,24 @@
 
 (defclass account ()
   ((id
-     :initarg id
-     :accessor id
-    (name
-     :initarg :name
-     :accessor name))
+     :initarg :id
+     :accessor id)
+   (name
+    :initarg :name
+    :accessor name)
    (balance
     :initarg :balance
     :accessor balance
     :initform 0))
   (:metaclass validated-class)
   (:validates
+    (presence id)
     (positive balance)
     (not-empty name)))
 
 (subtest "Passes validations."
   (ok (validp (make-instance 'account
+                             :id 1
                              :name "Steve"
                              :balance 10))))
 
