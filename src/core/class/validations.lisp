@@ -30,16 +30,14 @@
 
 (defclass validated-class (standard-class)
   ((validations :initform nil
-                :initarg :validates)
-   (allow-invalid :initform nil
-                  :initarg :allow-invalid)))
+                :initarg :validates)))
 
 (defmethod c2mop:validate-superclass ((class validated-class) (super standard-class))
   t)
 
 (defun symbol-to-validate-func (symbol class)
   "Get the function for a symbol with 'validate-' prepended. Checks the
-   class's package first, then checks the mito.validations package."
+   CLASS's package first, then checks the MITO.VALIDATIONS package."
   (let ((function-name (concatenate 'string "VALIDATE-" (string symbol))))
     (symbol-function (or
                        (find-symbol
@@ -51,10 +49,10 @@
 
 (defun validp (validated-obj)
   "If valid returns:
-         t
+         T
 
    If invalid returns (multiple values):
-         (nil ((:slot slot  :invalid-value invalid-value  :message message)
+         (NIL ((:slot slot  :invalid-value invalid-value  :message message)
                (:slot slot2 :invalid-value invalid-value2 :message message2)
                 ...))"
   (let* ((validation-specs (slot-value (class-of validated-obj) 'validations))

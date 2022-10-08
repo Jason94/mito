@@ -1,8 +1,21 @@
 (in-package :cl-user)
+(defpackage mito-test.test-foo-validations-package
+  (:use #:cl)
+  (:export #:validate-not-empty))
+(in-package :mito-test.test-foo-validations-package)
+
+(defun validate-not-empty (obj slot value &key &allow-other-keys)
+  (declare (ignore obj slot))
+  (if (string= "" value)
+    (values nil "must not be empty")
+    t))
+
+(in-package :cl-user)
 (defpackage mito-test.class.validations
   (:use #:cl
         #:prove
-        #:mito.class.validations))
+        #:mito.class.validations
+        #:mito-test.test-foo-validations-package))
 (in-package :mito-test.class.validations)
 
 (plan nil)
@@ -12,12 +25,6 @@
   (if (>= value 0)
     t
     (values nil "must be positive")))
-
-(defun validate-not-empty (obj slot value &key &allow-other-keys)
-  (declare (ignore obj slot))
-  (if (string= "" value)
-    (values nil "must not be empty")
-    t))
 
 (defclass account ()
   ((id
@@ -36,10 +43,35 @@
     (positive balance)
     (not-empty name)))
 
-(subtest "Passes validations."
+(subtest "Looks for symbols in the defining package, mito.validations, and
+          any functions imported into the defining package."
+  (validp (make-instance 'account
+                         :id 1
+                         :name "Steve"
+                         :balance 10))
+  (pass "validp found all validation functions"))
+
+(subtest "Passes validations when all validations are satisfied"
   (ok (validp (make-instance 'account
                              :id 1
                              :name "Steve"
                              :balance 10))))
+
+(subtest "Fails validations when one validation is not satisfied"
+  (multiple-value-bind (result fail-specs)
+                       (validp (make-instance 'account
+                                              :id 1
+                                              :name "Steve"
+                                              :balance -10))
+    (is result nil "failed validation")
+    (is (getf (first fail-specs) :slot)
+        'balance
+        "includes fail-spec slot")
+    (is (getf (first fail-specs) :invalid-value)
+        -10
+        "includes invalid-value")
+    (is-type (getf (first fail-specs) :message)
+             'string
+             "includes string error message")))
 
 (finalize)
