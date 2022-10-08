@@ -19,7 +19,7 @@
 ;;;;     themselves are not responsible for implementing global validations
 ;;;;     parameters (such as :allow-nil), but are allowed to respond to them.
 ;;;; See mito.validations for examples.
-(declaim (optimize (speed 0) (space 0) (debug 3)))
+(declaim (optimize (speed 0) (space 0) (debug 3))) ;; Debug remove this
 
 (in-package :cl-user)
 (defpackage mito.class.validations
