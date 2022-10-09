@@ -32,7 +32,7 @@
     (is (validate-presence (account 1 "Steve" 0) 'balance 0) t)))
 
 (subtest "VALIDATE-LENGTH"
-  (let* ((test-account (account 1 "Steve" 10)))
+  (let ((test-account (account 1 "Steve" 10)))
     (subtest "errors when no specification is supplied"
       (is-error (validate-length test-account 'name "Steve")
                 'simple-error))
@@ -61,7 +61,7 @@
       (is (validate-length test-account 'name "Steve" :min 6 :max 8) nil "fails when below range"))))
 
 (subtest "VALIDATE-INCLUSION"
-  (let* ((admin-account (account 1 "Steve" 10)))
+  (let ((admin-account (account 1 "Steve" 10)))
     (is (validate-inclusion admin-account 'name "Steve" :in '())
         nil
         "fails against the empty list")
