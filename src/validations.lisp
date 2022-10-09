@@ -7,7 +7,8 @@
 (defpackage mito.validations
   (:use #:cl)
   (:export #:validate-presence
-           #:validate-length))
+           #:validate-length
+           #:validate-inclusion))
 (in-package :mito.validations)
 
 (defun validate-presence (obj slot value &key &allow-other-keys)
@@ -31,3 +32,9 @@
       ((and max (> len max))
        (values nil (format nil "String '~a' longer than maxmimum length ~a" value len)))
       (t t))))
+
+(defun validate-inclusion (obj slot value &key in &allow-other-keys)
+  (declare (ignore obj slot))
+  (if (find value in :test #'equal)
+    t
+    (values nil (format nil "~a must be in the specified list" value))))

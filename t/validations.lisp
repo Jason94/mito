@@ -32,8 +32,7 @@
     (is (validate-presence (account 1 "Steve" 0) 'balance 0) t)))
 
 (subtest "VALIDATE-LENGTH"
-  (let* ((test-name "Steve")
-         (test-account (account 1 test-name 10)))
+  (let* ((test-account (account 1 "Steve" 10)))
     (subtest "errors when no specification is supplied"
       (is-error (validate-length test-account 'name "Steve")
                 'simple-error))
@@ -60,5 +59,20 @@
       (is (validate-length test-account 'name "Steve" :min 4 :max 6) t "passes when inside range")
       (is (validate-length test-account 'name "Steve" :min 2 :max 4) nil "fails when above range")
       (is (validate-length test-account 'name "Steve" :min 6 :max 8) nil "fails when below range"))))
+
+(subtest "VALIDATE-INCLUSION"
+  (let* ((admin-account (account 1 "Steve" 10)))
+    (is (validate-inclusion admin-account 'name "Steve" :in '())
+        nil
+        "fails against the empty list")
+    (is (validate-inclusion admin-account 'name "Steve" :in '("Betsy" "Steve" "Susan"))
+        t
+        "passes when the value is in the list")
+    (is (validate-inclusion admin-account 'name "Jimbo" :in '("Betsy" "Steve" "Susan"))
+        nil
+        "fails when the value is not in the list")
+    (is (validate-inclusion admin-account 'name "Steve" :in #("Betsy" "Steve" "Susan"))
+        t
+        "passes when the value is in the vector")))
 
 (finalize)
