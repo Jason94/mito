@@ -9,7 +9,8 @@
   (:export #:validate-presence
            #:validate-length
            #:validate-inclusion
-           #:validate-exclusion))
+           #:validate-exclusion
+           #:validate-comparison))
 (in-package :mito.validations)
 
 (defun validate-presence (obj slot value &key &allow-other-keys)
@@ -45,3 +46,29 @@
   (if (find value from :test #'equal)
     (values nil (format nil "~a must be in the specified list" value))
     t))
+
+(defun validate-comparison (obj slot value &key other with &allow-other-keys)
+  (when (not (and other with))
+    (error "Must specify a second slot and comparison function."))
+  (multiple-value-bind (comparison-function error-message)
+                       (case with
+                         (:greater-than
+                           (values #'> "be greater than"))
+                         (:greater-or-equal-to
+                           (values #'>= "be greater than or equal to"))
+                         (:equal-to
+                           (values #'equal "be equal to"))
+                         (:not-equal-to
+                           (values #'(lambda (x y) (not (equal x y)))
+                                   "not be equal to"))
+                         (:less-than
+                           (values #'< "be less than"))
+                         (:less-or-equal-to
+                           (values #'< "be less than or equal to")))
+    (when (not comparison-function)
+      (error (format nil "Invalid comparison argument ~a given" with)))
+    (if (funcall comparison-function value (slot-value obj other))
+      t
+      (values nil
+              (format nil "~a [~a] must ~a ~a [~a]"
+                      slot value error-message other (slot-value obj other))))))

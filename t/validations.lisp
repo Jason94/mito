@@ -17,13 +17,18 @@
    (balance
     :initarg :balance
     :accessor balance
+    :initform 0)
+   (old-balance
+    :initarg :old-balance
+    :accessor balance
     :initform 0)))
 
-(defun account (id name balanec)
+(defun account (&optional (id 1) (name "Steve") (balance 0) (old-balance 0))
   (make-instance 'account
-                 :id 1
-                 :name "Steve"
-                 :balance 0))
+                 :id id
+                 :name name
+                 :balance balance
+                 :old-balance old-balance))
 
 (subtest "VALIDATE-PRESENCE"
   (subtest "fails when the value is nil"
@@ -89,5 +94,49 @@
     (is (validate-exclusion test-account 'name "Steve" :from #("Betsy" "Amanda" "Susan"))
         t
         "passes when the value is not in the vector")))
+
+(subtest "VALIDATE-COMPARISON"
+  (let ((test-account (account 1 "Steve" 10 0)))
+    (is-error (validate-comparison test-account 'balance 10 :with :less-than)
+              'simple-error
+              "errors without a comparison function")
+    (is-error (validate-comparison test-account 'balance 10 :other 'old-balance)
+              'simple-error
+              "errors without an other slot")
+    (subtest "using :greater-than"
+      (is (validate-comparison test-account 'balance 10 :other 'old-balance
+                                                        :with :greater-than)
+          t
+          "passes when true")
+      (is (validate-comparison test-account 'old-balance 0 :other 'balance
+                                                           :with :greater-than)
+          nil
+          "fails when false"))
+    (is (validate-comparison test-account 'balance 10
+                                          :other 'old-balance
+                                          :with :greater-or-equal-to)
+        t
+        "using :greater-or-equal-to passes when true")
+    (is (validate-comparison test-account 'balance 10
+                                          :other 'old-balance
+                                          :with :equal-to)
+        nil
+        "using :equal-to fails when false")
+    (is (validate-comparison test-account 'balance 10
+                                          :other 'old-balance
+                                          :with :not-equal-to)
+        t
+        "using :not-equal-to passes when true")
+    (is (validate-comparison test-account 'balance 10
+                                          :other 'old-balance
+                                          :with :less-than)
+        nil
+        "using :less-than fails when false")
+    (is (validate-comparison test-account 'balance 10
+                                          :other 'old-balance
+                                          :with :less-or-equal-to)
+        nil
+        "using :less-or-equal-to fails when false")))
+
 
 (finalize)
