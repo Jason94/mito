@@ -9,6 +9,8 @@
 ;;;;   * A validation function should be named "validation-xxx". "xxx" will be
 ;;;;     used to reference the validation function in a class definition.
 ;;;;   * A validation is a function that takes (object slot-symbol slot-value).
+;;;;       - The contract of the validation system guarantees that the object
+;;;;         and given slot-symbol will agree with the slot-value.
 ;;;;   * They should return t if the object/slot-value validates.
 ;;;;   * They should return (values nil "explanation string") if the
 ;;;;     object/slot-value fails validation.

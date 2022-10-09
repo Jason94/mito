@@ -74,19 +74,4 @@
              'string
              "includes string error message")))
 
-(subtest "validate-presence"
-  (defclass presence-tester ()
-    ((name :initarg :name :accessor name))
-    (:metaclass validated-class)
-    (:validates (presence name)))
-  (subtest "fails when the value is nil"
-    (is (validp (make-instance 'presence-tester
-                               :name nil))
-        nil
-        "fails on a nil value"))
-  (subtest "passes when the value is present"
-    (is (validp (make-instance 'presence-tester
-                               :name "Steve")))))
-
-
 (finalize)

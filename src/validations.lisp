@@ -6,7 +6,8 @@
 (in-package :cl-user)
 (defpackage mito.validations
   (:use #:cl)
-  (:export #:validate-presence))
+  (:export #:validate-presence
+           #:validate-length))
 (in-package :mito.validations)
 
 (defun validate-presence (obj slot value &key &allow-other-keys)
@@ -14,3 +15,19 @@
   (if value
     t
     (values nil "~a must be present" slot)))
+
+(defun validate-length (obj slot value &key is min max &allow-other-keys)
+  (declare (ignore obj slot))
+  (when (not (or is min max))
+    (error "Must validate is, or min and/or max."))
+  (when (and is (or min max))
+    (error "Cannot check exact length and min/max length."))
+  (let ((len (length value)))
+    (cond
+      ((and is (/= len is))
+       (values nil (format nil "String '~a' does not match length ~a" value len)))
+      ((and min (< len min))
+       (values nil (format nil "String '~a' shorter than minimum length ~a" value len)))
+      ((and max (> len max))
+       (values nil (format nil "String '~a' longer than maxmimum length ~a" value len)))
+      (t t))))
