@@ -75,4 +75,19 @@
         t
         "passes when the value is in the vector")))
 
+(subtest "VALIDATE-EXCLUSION"
+  (let ((test-account (account 1 "Steve" 10)))
+    (is (validate-exclusion test-account 'name "Steve" :from '())
+        t
+        "passes against the empty list")
+    (is (validate-exclusion test-account 'name "Steve" :from '("Amanda" "Steve"))
+        nil
+        "fails when the value is in the list")
+    (is (validate-exclusion test-account 'name "Steve" :from '("Betsy" "Amanda" "Susan"))
+        t
+        "passes when the value is not in the lit")
+    (is (validate-exclusion test-account 'name "Steve" :from #("Betsy" "Amanda" "Susan"))
+        t
+        "passes when the value is not in the vector")))
+
 (finalize)

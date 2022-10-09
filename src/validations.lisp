@@ -8,7 +8,8 @@
   (:use #:cl)
   (:export #:validate-presence
            #:validate-length
-           #:validate-inclusion))
+           #:validate-inclusion
+           #:validate-exclusion))
 (in-package :mito.validations)
 
 (defun validate-presence (obj slot value &key &allow-other-keys)
@@ -38,3 +39,9 @@
   (if (find value in :test #'equal)
     t
     (values nil (format nil "~a must be in the specified list" value))))
+
+(defun validate-exclusion (obj slot value &key from &allow-other-keys)
+  (declare (ignore obj slot))
+  (if (find value from :test #'equal)
+    (values nil (format nil "~a must be in the specified list" value))
+    t))
