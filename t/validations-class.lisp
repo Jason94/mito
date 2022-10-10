@@ -43,35 +43,37 @@
     (positive balance)
     (not-empty name)))
 
-(subtest "Looks for symbols in the defining package, mito.validations, and
-          any functions imported into the defining package."
-  (validp (make-instance 'account
-                         :id 1
-                         :name "Steve"
-                         :balance 10))
-  (pass "validp found all validation functions"))
+(defun account (&optional (id 1) (name "Steve") (balance 0))
+  (make-instance 'account
+                 :id id
+                 :name name
+                 :balance balance))
 
-(subtest "Passes validations when all validations are satisfied"
-  (ok (validp (make-instance 'account
-                             :id 1
-                             :name "Steve"
-                             :balance 10))))
+(subtest "Validating"
+  (subtest "looks for symbols in the defining package, mito.validations, and
+            any functions imported into the defining package."
+    (validp (account 1 "Steve" 10))
+    (pass "validp found all validation functions"))
 
-(subtest "Fails validations when one validation is not satisfied"
-  (multiple-value-bind (result fail-specs)
-                       (validp (make-instance 'account
-                                              :id 1
-                                              :name "Steve"
-                                              :balance -10))
-    (is result nil "failed validation")
-    (is (getf (first fail-specs) :slot)
-        'balance
-        "includes fail-spec slot")
-    (is (getf (first fail-specs) :invalid-value)
-        -10
-        "includes invalid-value")
-    (is-type (getf (first fail-specs) :message)
-             'string
-             "includes string error message")))
+  (subtest "passes validations when all validations are satisfied"
+    (ok (validp (account 1 "Steve" 10))))
+
+  (subtest "fails validations when one validation is not satisfied"
+    (multiple-value-bind (result fail-specs)
+                         (validp (account 1 "Steve" -10))
+      (is result nil "failed validation")
+      (is (getf (first fail-specs) :slot)
+          'balance
+          "includes fail-spec slot")
+      (is (getf (first fail-specs) :invalid-value)
+          -10
+          "includes invalid-value")
+      (is-type (getf (first fail-specs) :message)
+               'string
+               "includes string error message"))))
+
+(subtest "ENSURE"
+  (subtest "returns T if the object is valid"
+    (ok (ensure (account 1 "Steve" 10)))))
 
 (finalize)

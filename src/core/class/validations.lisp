@@ -27,7 +27,8 @@
 (defpackage mito.class.validations
   (:use #:cl)
   (:export #:validated-class
-           #:validp))
+           #:validp
+           #:ensure))
 (in-package :mito.class.validations)
 
 (defclass validated-class (standard-class)
@@ -50,7 +51,9 @@
                          (find-package 'mito.validations))))))
 
 (defun validp (validated-obj)
-  "If valid returns:
+  "Check whether VALID-OBJ passes all validations defined on its class.
+
+   If valid returns:
          T
 
    If invalid returns (multiple values):
@@ -79,3 +82,6 @@
     (if (every #'not failure-specs)
       t
       (values nil (remove-if #'not failure-specs)))))
+
+(defun ensure (validated-obj)
+  t)
